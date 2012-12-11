@@ -45,26 +45,28 @@
       <div class="masthead">
         <h3 class="muted">Clementine Web Player</h3>
       </div>
-
+        <div id="error" class="alert alert-error" style="display: none;">
+          <h4 id="error1" style="text-align: center; display: none;">Uh oh! I cant seem to access the server! <a id="recon">Try reconnecting!</a></h4>
+          <h4 id="error2" style="text-align: center; display: none;">Uh oh! Looks like your browser doesnt support websockets! Try updating to a recent version of <a href="https://www.google.com/intl/en/chrome/browser/">Chrome</a> or <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>!</h4>
+        </div>
       <hr>
-
       <div class="row-fluid jumbotron">
         <div class="span3">
           <p><img src="/getimage" class="img-polaroid" height="200" width="200" id="art" style="margin-top: 20px"></p>
         </div>
         <div class="span9">
-          
           <h2>
             <span id="title"></span><br />
             <i><span id="artist"></span></i>
           </h2>
           <p class="lead">
             <b>Album: </b><span class="upd" id="album"></span><br />
+            <b>Track: </b><span class="upd" id="tracknumber"></span><br />
             <b>Duration: </b><span class="upd" id="time"></span><br />
             <b>Year: </b><span class="upd" id="year"></span><br />
           </p>
-            <hr>
-          <div id="progress" class="progress progress-striped active">
+          <hr>
+          <div id="progress" class="progress">
             <div class="bar active" style="width: 0%;"></div>
           </div>
           <div style="text-align: center">
@@ -79,20 +81,16 @@
       <div class="footer">
         <i><a href="https://github.com/b1naryth1ef/ClemWeb">ClemWeb</a> by <a href="http://b1naryth1ef.com">B1naryTh1ef</a</i>
       </div>
-
-    </div> <!-- /container -->
+    </div>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script>
-      $(document).ready(function(){
-        var playing = false;
-        $('.click').click(function(){
-          ws.send($(this).attr('act'))
-        })
+      var playing = false;
 
-        if ("WebSocket" in window) {                                         
-          ws = new WebSocket("ws://" + document.domain + ":5000/api");                
-          ws.onmessage = function (msg) {
+      function socket () {
+        ws = new WebSocket("ws://" + document.domain + ":5000/api"); 
+        // Core loop               
+        ws.onmessage = function (msg) {
             var v = JSON.parse(msg.data)  
             if (v.tag == "update") {
               $('.upd').each(function(index){
@@ -114,11 +112,43 @@
             } else if (v.tag == "bar") {
               $('.bar').width(v.value+"%")
             }
-          };                                                               
-        } else {                                                             
-          alert("WebSocket not supported!");                                
-        } 
+        };
+        // Hide any errors when we [re]connect
+        ws.onopen = function () {
+            $('#error').fadeOut("slow")
+            $('#error1').fadeOut("slow")
+            $('.jumbotron').fadeIn("slow")
+        }
 
+        // Send an error when we get disconnected
+        ws.onclose = function () { 
+            $('#error').fadeIn("slow")
+            $('#error1').fadeIn("slow")
+            $('.jumbotron').fadeOut("slow")
+        };
+      }
+
+      $(document).ready(function(){
+        // Actual Init Statement of the page
+        if ("WebSocket" in window) {
+          socket();
+        } else {
+          $('#error').fadeIn("slow") 
+          $('#error2').fadeIn("slow")
+          $('.jumbotron').fadeOut("slow")
+        }
+
+        // Sends an action depending on the "act" attr
+        $('.click').click(function(){
+          ws.send($(this).attr('act'))
+        })
+
+        // If we get disconnected, this will try reconnecting
+        $('#recon').click(function() {
+          socket();
+        });
+
+        // Keybinds 
         $(document).keydown(function(e) {
           if (e.which == 32) { //Space
             if (playing) { ws.send("pause"); } 
