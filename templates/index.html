@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
     <style type="text/css">
       body {
         padding-top: 20px;
@@ -63,15 +64,19 @@
           </h3>
           <p class="lead">
             <b>Album: </b><span class="upd" id="album"></span><br />
+            <b>Duration: </b><span class="upd" id="time"></span><br />
             <b>Year: </b><span class="upd" id="year"></span><br />
           </p>
-          
-          <a class="btn btn-large btn-info click" act="last">< Last</a>
-
-          <a class="btn btn-large btn-warning pause click" act="pause">Pause</a>
-          <a class="btn btn-large btn-success play click" act="play">Play</a> 
-
-          <a class="btn btn-large btn-info click" act="next">Next ></a>
+            <hr>
+          <div class="progress">
+            <div class="bar" style="width: 60%;"></div>
+          </div>
+          <div style="text-align: center">
+            <a class="btn btn-large btn-info click" act="last">< Last</a>
+            <a class="btn btn-large btn-warning pause click" act="pause">Pause</a>
+            <a class="btn btn-large btn-success play click" act="play">Play</a> 
+            <a class="btn btn-large btn-info click" act="next">Next ></a>
+          </div>
         </div>
       </div>
       <hr>
@@ -106,7 +111,9 @@
                 $('.pause').hide()
                 $('.play').show()
               }
-            }                    
+            } else if (v.tag == "bar") {
+              $('.bar').width(v.value+"%")
+            }
           };                                                               
         } else {                                                             
           alert("WebSocket not supported!");                                
