@@ -57,20 +57,18 @@
           <p><img src="/getimage" class="img-polaroid" height="150" width="150" id="art" style="margin-top: 20px"></p>
         </div>
         <div class="span9">
-          <h3>
-            <span class="label label-large label-warning play">Paused</span>
-            <span class="label label-large label-success pause">Playing</span>
-            <span id="title">{{ song['title'] }}</span> -- <span id="artist">{{ song['artist'] }}</span>
-          </h3>
+          
+          <h2>
+            <span id="title"></span> -- <span id="artist"></span>
+          </h2>
           <p class="lead">
             <b>Album: </b><span class="upd" id="album"></span><br />
             <b>Duration: </b><span class="upd" id="time"></span><br />
             <b>Year: </b><span class="upd" id="year"></span><br />
           </p>
             <hr>
-          <div class="progress">
-
-            <div class="bar" style="width: 0%;"></div>
+          <div id="progress" class="progress progress-striped active">
+            <div class="bar active" style="width: 0%;"></div>
           </div>
           <div style="text-align: center">
             <a class="btn btn-large btn-info click" act="last">< Last</a>
@@ -106,14 +104,15 @@
               $('#title').text(v.meta.title)
               $('#artist').text(v.meta.artist)
               $('#art').attr('src', '/getimage')
-              if (v.playing) {
+              playing = v.playing
+              if (playing) {
                 $('.pause').show()
                 $('.play').hide()
-                playing = true;
+                $('.bar').addClass('bar-success').removeClass('bar-warning')
               } else {
                 $('.pause').hide()
                 $('.play').show()
-                playing = false;
+                $('.bar').removeClass('bar-success').addClass('bar-warning')
               }
             } else if (v.tag == "bar") {
               $('.bar').width(v.value+"%")

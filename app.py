@@ -25,21 +25,11 @@ def getMeta():
 
 @app.route("/")
 def routeIndex():
-    return render_template('index.html', song=dict(iface.GetMetadata()), playing=not bool(int(iface.GetStatus()[0])))
+    return render_template('index.html')
 
 @app.route('/getimage')
 def routeGetImage():
     return open(str(dict(iface.GetMetadata())['arturl']).split('file://')[-1], 'rb').read()
-
-@app.route("/pause")
-def routePause():
-    iface.Pause()
-    return True
-
-@app.route("/play")
-def routePlay():
-    iface.Play()
-    return True
 
 def recv_thread(args):
     global active
