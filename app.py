@@ -46,7 +46,7 @@ def api():
         ws = request.environ['wsgi.websocket']
         gevent.spawn(recv_thread, (ws, ))
         while active:
-            gevent.sleep(.5)
+            gevent.sleep(1)
             if ws.socket is None: return "Finished"
             v = not bool(int(iface.GetStatus()[0]))
             # Lets get the percentage we're at
