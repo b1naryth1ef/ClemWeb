@@ -14,13 +14,10 @@ session_bus = dbus.SessionBus()
 player = session_bus.get_object('org.mpris.clementine', '/Player')
 tracks = session_bus.get_object('org.mpris.clementine', '/TrackList')
 iface = dbus.Interface(player, dbus_interface='org.freedesktop.MediaPlayer')
-last = None
-status = None
-
 def getMeta():
     res = {}
     for k, v in dict(iface.GetMetadata()).items():
-        res[str(k)] = str(v)
+        res[str(k)] = v #.encode('ISO-8859-1')
     return res
 
 @app.route("/")
