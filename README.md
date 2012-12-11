@@ -3,6 +3,6 @@ ClemWeb is a simple (rather hacked together) site made to run locally on your Li
 
 # Pics or gtfo!
 ## Playing:
-![Screenshot 1](http://i.imgur.com/2cWvE.png)
+![Screenshot 1](http://i.imgur.com/DIZsm.png)
 ## Paused:
-![Screenshot 2](http://i.imgur.com/HlBxC.png)
+![Screenshot 2](http://i.imgur.com/zCY50.png)
