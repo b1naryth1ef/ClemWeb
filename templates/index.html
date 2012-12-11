@@ -69,8 +69,8 @@
           </p>
             <hr>
           <div class="progress">
-            
-            <div class="bar" style="width: 60%;"></div>
+
+            <div class="bar" style="width: 0%;"></div>
           </div>
           <div style="text-align: center">
             <a class="btn btn-large btn-info click" act="last">< Last</a>
@@ -90,6 +90,7 @@
     <script src="/static/js/bootstrap.js"></script>
     <script>
       $(document).ready(function(){
+        var playing = false;
         $('.click').click(function(){
           ws.send($(this).attr('act'))
         })
@@ -108,9 +109,11 @@
               if (v.playing) {
                 $('.pause').show()
                 $('.play').hide()
+                playing = true;
               } else {
                 $('.pause').hide()
                 $('.play').show()
+                playing = false;
               }
             } else if (v.tag == "bar") {
               $('.bar').width(v.value+"%")
@@ -118,7 +121,18 @@
           };                                                               
         } else {                                                             
           alert("WebSocket not supported!");                                
-        }   
+        } 
+
+        $(document).keydown(function(e) {
+          if (e.which == 32) { //Space
+            if (playing) { ws.send("pause"); } 
+            else { ws.send("play"); }
+          } else if (e.which == 110 || e.which == 39 ) { //n or right arrow
+            ws.send("next");
+          } else if (e.which == 112 || e.which == 37 ) { //p or a
+            ws.send("last");
+          }
+        });  
       });
     </script>
    
