@@ -24,15 +24,18 @@
         font-size: 72px;
         line-height: 1;
       }
-      .jumbotron .btn {
+      /*.jumbotron .btn {
         font-size: 21px;
         padding: 14px 24px;
-      }
+      }*/
       .marketing {
         margin: 60px 0;
       }
       .marketing p + h4 {
         margin-top: 28px;
+      }
+      table .btn{
+        margin-right: 5px;
       }
     </style>
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
@@ -52,7 +55,7 @@
       <hr>
       <div class="row-fluid jumbotron">
         <div class="span3">
-          <p><img src="/getimage" class="img-polaroid" height="200" width="200" id="art" style="margin-top: 20px"></p>
+          <p><img src="" class="img-polaroid" height="200" width="200" id="art" style="margin-top: 20px"></p>
         </div>
         <div class="span9">
           <h2>
@@ -65,6 +68,8 @@
             <b>Duration: </b><span class="upd" id="time"></span><br />
             <b>Year: </b><span class="upd" id="year"></span><br />
           </p>
+        </div>
+        <div class="span12">
           <hr>
           <div id="progress" class="progress">
             <div class="bar active" style="width: 0%;"></div>
@@ -75,7 +80,32 @@
             <a class="btn btn-large btn-success play click" act="play">Play</a> 
             <a class="btn btn-large btn-info click" act="next">Next ></a>
           </div>
-        </div>
+          <div class="row-fluid" style="text-align: center">
+            <div style="span1" style="text-align: center">
+              <br />
+              <p><b>Volume: </b> <span id="volume"></span></p>
+              <button class="btn btn-primary click" act="vdown" type="button">-</button>
+              <button class="btn btn-primary click" act="vup" type="button">+</button>
+            </div>
+            <div style="span1" style="text-align: center">
+              <p><b>Shuffle: </b> <input id="shuff" type="checkbox"></p>
+            </div>
+          </div>
+          <hr>
+          <table id="tracks" class="table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Track</th>
+                <th>Artist</th>
+                <th>Album</th>
+                <th>Controls</th>
+              </tr>
+            </thead>
+            <tbody>
+            </tbody>
+          </table>
+          </div>
       </div>
       <hr>
       <div class="footer">
@@ -86,6 +116,31 @@
     <script src="/static/js/bootstrap.js"></script>
     <script>
       var playing = false;
+      var curtrack = 0;
+
+
+      function buildTracks (data) {
+        $("#tracks > tbody tr").remove();
+        $.each(data, function(i, item) {
+          v = "";
+          if (i == curtrack-1) { v = 'badge badge-success'; }
+          else { v = 'badge'}
+          $('#tracks > tbody:last').append('<tr>\
+                <th><span class="'+v+'">'+item.tracknumber+'</span></th>\
+                <th>'+item.title+'</th>\
+                <th>'+item.artist+'</th>\
+                <th>'+item.album+'</th>\
+                <th>\
+                <a class="btn btn-small btn-primary clicky" act="ptrack'+i+'" type="button">Play</a>\
+                <a class="btn btn-small btn-danger clicky" act="dtrack'+i+'" type="button">Remove</a>\
+                </th>\
+              </tr>')
+        });
+        $('.clicky').unbind()
+        $('.clicky').click(function(){
+          ws.send($(this).attr('act'))
+        })
+      }
 
       function socket () {
         ws = new WebSocket("ws://" + document.domain + ":5000/api"); 
@@ -111,6 +166,12 @@
               }
             } else if (v.tag == "bar") {
               $('.bar').width(v.value+"%")
+            } else if (v.tag == "tracks" ) {
+              buildTracks(v.tracks);
+              curtrack = v.cur;
+            } else if (v.tag == 'state' ) {
+              $('#volume').text(v.vol)
+              $('#shuff').prop('checked', v.shuff)
             }
         };
         // Hide any errors when we [re]connect
@@ -138,10 +199,17 @@
           $('.jumbotron').fadeOut("slow")
         }
 
-        // Sends an action depending on the "act" attr
         $('.click').click(function(){
           ws.send($(this).attr('act'))
         })
+
+        $('#shuff').change(function(){
+          if (this.checked) {
+            ws.send("shuffon")
+          } else {
+            ws.send("shuffoff")
+          }
+        });
 
         // If we get disconnected, this will try reconnecting
         $('#recon').click(function() {
