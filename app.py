@@ -49,6 +49,7 @@ def api():
             gevent.sleep(1)
             if ws.socket is None: return "Finished"
             v = not bool(int(iface.GetStatus()[0]))
+
             # Lets get the percentage we're at
             meta = getMeta()
             perc = (float(iface.PositionGet())/float(meta['mtime']))*100
@@ -57,7 +58,7 @@ def api():
             #Do we need to update song info?
             if meta['title'] == session['last'] and session['status'] == v: continue
             else:
-                session['last'] = meta['title']
+                session['last'] = str(meta['title'])
                 session['status'] = v
                 t = str(float(meta['time'])/float(60)).split('.', 1)
                 s = str(float('.'+t[1])*60).split('.')[0]
